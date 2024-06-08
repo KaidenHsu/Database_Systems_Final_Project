@@ -5,8 +5,8 @@ This repo is my final project for the course "database systems" in NCCU.
 Please note that code in this repo is intended solely for demo purposes and is susceptible to various bugs. Please DO NOT use it in practice!
 
 ## E-R Diagram
-![Image loading failed](./images/ER_Diagram.jpg)
+<img src="./images/ER_Diagram.jpg" alt="Load failed" width="500" height="300">
 
 ## Relational Schema
-![Image loading failed](./images/Schema_1.jpg)
-![Image loading failed](./images/Schema_2.jpg)
+<img src="./images/Schema_1.jpg" alt="Load failed" width="500" height="300">
+<img src="./images/Schema_2.jpg" alt="Load failed" width="500" height="300">
