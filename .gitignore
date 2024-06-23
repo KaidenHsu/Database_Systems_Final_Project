@@ -1,1 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite database file
+instance/site.db
+
+# OS-specific file
 .DS_Store
+
+# Eclipse project file
+.project
