@@ -11,8 +11,41 @@ Please note that code in this repo is intended solely for demo purposes and is s
 <img src="./images/Schema_1.jpg" alt="Load failed" width="420" height="594">
 <img src="./images/Schema_2.jpg" alt="Load failed" width="420" height="594">
 
-## System Function Analysis
+## Running the Project from Scratch
 
+Prerequisites:
+- Python 3.x
+- pip
+
+To get the project up and running, follow these steps:
+
+1. **Clone the Repository:**
+   ```sh
+   git clone <repository_url>
+   cd <repository_name>
+   ```
+2. **Install Dependencies:**
+Install the required packages from requirements.txt.
+```sh
+pip install -r requirements.txt
+```
+3. **Initialize the Database:**
+Run the following commands to set up the database.
+```sh
+flask db init
+flask db migrate -m "Initial migration"
+flask db upgrade
+```
+4. **Run the Application:**
+Start the Flask application.
+```sh
+flask run
+```
+Now, you should be able to access the application at http://127.0.0.1:5000.
+For more information, please read the [docs](./docs)
+
+
+## System Function Analysis
 The system provides the following key functionalities:
 
 **User Management**
@@ -53,6 +86,3 @@ The system provides the following key functionalities:
 - **Manage Movies**: Admins have a dedicated interface to manage movies, including adding, updating, and deleting movies.
 - **Manage Users**: Admins can view the list of users and their subscription status.
 - **Manage Genres**: Admins have a dedicated interface to manage genres, including adding and deleting genres.
-
-## Docs
-For more a comprehensive guide, please read the [docs](./docs)

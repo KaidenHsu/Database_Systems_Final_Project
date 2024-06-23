@@ -1,11 +1,11 @@
 from flask import render_template, url_for, flash, redirect, request, abort
 from app import app, db, bcrypt
-from app.forms import RegistrationForm, LoginForm, MovieForm, UpdateAccountForm, \
-      UpdatePhoneForm, UpdatePasswordForm, SubscriptionForm, RentForm, ReviewForm
+from app.forms import RegistrationForm, LoginForm, MovieForm, UpdatePhoneForm, \
+    UpdatePasswordForm, SubscriptionForm, RentForm, ReviewForm
 from app.models import User, Movie, Subscription, Rent, Review, Genre, MovieGenre
 from flask_login import login_user, current_user, logout_user, login_required
 from datetime import datetime, timedelta
-from sqlalchemy import desc, func
+from sqlalchemy import func
 from datetime import datetime, timezone
 
 # Home route
@@ -55,126 +55,6 @@ def logout():
     logout_user()
     flash('You have been logged out.', 'success')
     return redirect(url_for('home'))
-
-# Define your admin key (ensure this is secure in a real application)
-ADMIN_KEY = 'your_admin_key_here'
-
-@app.route("/admin")
-def admin():
-    admin_key = request.args.get('admin_key')
-    if admin_key != ADMIN_KEY:
-        return "Forbidden", 403
-
-    movies = Movie.query.all()
-    users = User.query.all()
-    all_genres = Genre.query.all()
-    return render_template('admin.html', movies=movies, users=users, all_genres=all_genres, datetime=datetime, timezone=timezone)
-
-@app.route("/admin/movie/new", methods=['GET', 'POST'])
-@login_required
-def admin_new_movie():
-    admin_key = request.args.get('admin_key')
-    if admin_key != 'your_admin_key_here':
-        return "Forbidden", 403
-
-    form = MovieForm()
-    if form.validate_on_submit():
-        movie = Movie(title=form.title.data, description=form.description.data, rel_year=form.rel_year.data)
-        db.session.add(movie)
-        db.session.commit()
-
-        # Add genres to the movie
-        genre_ids = request.form.get("selected_genres", "").split(",")
-        for genre_id in genre_ids:
-            if genre_id:
-                movie_genre = MovieGenre(mov_id=movie.mov_id, gen_id=int(genre_id))
-                db.session.add(movie_genre)
-        
-        db.session.commit()
-        flash('The movie has been added!', 'success')
-        return redirect(url_for('admin', admin_key='your_admin_key_here'))
-
-    all_genres = Genre.query.all()
-    return render_template('admin_new_movie.html', title='Add New Movie', form=form, all_genres=all_genres)
-
-@app.route("/admin/movie/<int:movie_id>/edit", methods=['GET', 'POST'])
-@login_required
-def admin_update_movie(movie_id):
-    admin_key = request.args.get('admin_key')
-    if admin_key != 'your_admin_key_here':
-        return "Forbidden", 403
-
-    movie = Movie.query.get_or_404(movie_id)
-    form = MovieForm(obj=movie)
-
-    if form.validate_on_submit():
-        movie.title = form.title.data
-        movie.description = form.description.data
-        movie.rel_year = form.rel_year.data
-        db.session.commit()
-
-        # Update genres for the movie
-        selected_genres = request.form.get("selected_genres", "").split(",")
-        movie_genres = MovieGenre.query.filter_by(mov_id=movie_id).all()
-        existing_genres = set(genre.gen_id for genre in movie_genres)
-        new_genres = set(int(genre_id) for genre_id in selected_genres if genre_id)
-
-        # Remove genres not in the new selection
-        for genre_id in existing_genres - new_genres:
-            movie_genre = MovieGenre.query.filter_by(mov_id=movie_id, gen_id=genre_id).first()
-            if movie_genre:
-                db.session.delete(movie_genre)
-
-        # Add new genres
-        for genre_id in new_genres - existing_genres:
-            movie_genre = MovieGenre(mov_id=movie_id, gen_id=genre_id)
-            db.session.add(movie_genre)
-
-        db.session.commit()
-        flash('The movie has been updated!', 'success')
-        return redirect(url_for('admin', admin_key='your_admin_key_here'))
-
-    all_genres = Genre.query.all()
-    movie_genre_ids = [genre.gen_id for genre in movie.genres]
-    return render_template('admin_update_movie.html', title='Update Movie', form=form, all_genres=all_genres, movie_genre_ids=movie_genre_ids, movie=movie)
-
-@app.route("/admin/movie/<int:movie_id>/delete", methods=['POST'])
-def admin_delete_movie(movie_id):
-    if request.args.get('admin_key') != ADMIN_KEY:
-        abort(403)  # Forbidden
-    movie = Movie.query.get_or_404(movie_id)
-    db.session.delete(movie)
-    db.session.commit()
-    flash('Movie has been deleted by admin!', 'success')
-    return redirect(url_for('admin', admin_key=ADMIN_KEY))
-
-@app.route("/admin/genres", methods=['GET', 'POST'])
-@login_required
-def admin_manage_genres():
-    admin_key = request.args.get('admin_key')
-    if admin_key != 'your_admin_key_here':
-        return "Forbidden", 403
-
-    if request.method == 'POST':
-        if 'add_genre' in request.form:
-            genre_name = request.form.get('genre_name')
-            if genre_name:
-                new_genre = Genre(name=genre_name)
-                db.session.add(new_genre)
-                db.session.commit()
-                flash('New genre added successfully!', 'success')
-        elif 'delete_genre' in request.form:
-            genre_id = request.form.get('delete_genre')
-            genre_to_delete = Genre.query.get(genre_id)
-            if genre_to_delete:
-                # Delete associated entries in the movie_genre table
-                MovieGenre.query.filter_by(gen_id=genre_id).delete()
-                db.session.delete(genre_to_delete)
-                db.session.commit()
-                flash('Genre deleted successfully!', 'success')
-
-    all_genres = Genre.query.all()
-    return render_template('admin_manage_genres.html', title='Manage Genres', genres=all_genres, admin_key=admin_key)
 
 @app.route("/profile")
 @login_required
@@ -358,3 +238,117 @@ def update_review(review_id):
         flash('Your review has been updated!', 'success')
         return redirect(url_for('home'))
     return render_template('add_review.html', title='Update Review', form=form, movie=review.movie)
+
+# Define your admin key (ensure this is secure in a real application)
+ADMIN_KEY = 'your_admin_key_here'
+
+@app.route("/admin")
+def admin():
+    if request.args.get('admin_key') != ADMIN_KEY:
+        abort(403)  # Forbidden
+
+    movies = Movie.query.all()
+    users = User.query.all()
+    all_genres = Genre.query.all()
+    return render_template('admin.html', movies=movies, users=users, all_genres=all_genres, datetime=datetime, timezone=timezone)
+
+@app.route("/admin/movie/new", methods=['GET', 'POST'])
+def admin_new_movie():
+    if request.args.get('admin_key') != ADMIN_KEY:
+        abort(403)  # Forbidden
+
+    form = MovieForm()
+    if form.validate_on_submit():
+        movie = Movie(title=form.title.data, description=form.description.data, rel_year=form.rel_year.data)
+        db.session.add(movie)
+        db.session.commit()
+
+        # Add genres to the movie
+        genre_ids = request.form.get("selected_genres", "").split(",")
+        for genre_id in genre_ids:
+            if genre_id:
+                movie_genre = MovieGenre(mov_id=movie.mov_id, gen_id=int(genre_id))
+                db.session.add(movie_genre)
+        
+        db.session.commit()
+        flash('The movie has been added!', 'success')
+        return redirect(url_for('admin', admin_key='your_admin_key_here'))
+
+    all_genres = Genre.query.all()
+    return render_template('admin_new_movie.html', title='Add New Movie', form=form, all_genres=all_genres)
+
+@app.route("/admin/movie/<int:movie_id>/edit", methods=['GET', 'POST'])
+def admin_update_movie(movie_id):
+    if request.args.get('admin_key') != ADMIN_KEY:
+        abort(403)  # Forbidden
+
+    movie = Movie.query.get_or_404(movie_id)
+    form = MovieForm(obj=movie)
+
+    if form.validate_on_submit():
+        movie.title = form.title.data
+        movie.description = form.description.data
+        movie.rel_year = form.rel_year.data
+        db.session.commit()
+
+        # Update genres for the movie
+        selected_genres = request.form.get("selected_genres", "").split(",")
+        movie_genres = MovieGenre.query.filter_by(mov_id=movie_id).all()
+        existing_genres = set(genre.gen_id for genre in movie_genres)
+        new_genres = set(int(genre_id) for genre_id in selected_genres if genre_id)
+
+        # Remove genres not in the new selection
+        for genre_id in existing_genres - new_genres:
+            movie_genre = MovieGenre.query.filter_by(mov_id=movie_id, gen_id=genre_id).first()
+            if movie_genre:
+                db.session.delete(movie_genre)
+
+        # Add new genres
+        for genre_id in new_genres - existing_genres:
+            movie_genre = MovieGenre(mov_id=movie_id, gen_id=genre_id)
+            db.session.add(movie_genre)
+
+        db.session.commit()
+        flash('The movie has been updated!', 'success')
+        return redirect(url_for('admin', admin_key='your_admin_key_here'))
+
+    all_genres = Genre.query.all()
+    movie_genre_ids = [genre.gen_id for genre in movie.genres]
+    return render_template('admin_update_movie.html', title='Update Movie', form=form, all_genres=all_genres, movie_genre_ids=movie_genre_ids, movie=movie)
+
+@app.route("/admin/movie/<int:movie_id>/delete", methods=['POST'])
+def admin_delete_movie(movie_id):
+    if request.args.get('admin_key') != ADMIN_KEY:
+        abort(403)  # Forbidden
+
+    movie = Movie.query.get_or_404(movie_id)
+    db.session.delete(movie)
+    db.session.commit()
+    flash('Movie has been deleted by admin!', 'success')
+    return redirect(url_for('admin', admin_key=ADMIN_KEY))
+
+@app.route("/admin/genres", methods=['GET', 'POST'])
+def admin_manage_genres():
+    if request.args.get('admin_key') != ADMIN_KEY:
+        abort(403)  # Forbidden
+
+    if request.method == 'POST':
+        if 'add_genre' in request.form:
+            genre_name = request.form.get('genre_name')
+            if genre_name:
+                new_genre = Genre(name=genre_name)
+                db.session.add(new_genre)
+                db.session.commit()
+                flash('New genre added successfully!', 'success')
+        elif 'delete_genre' in request.form:
+            genre_id = request.form.get('delete_genre')
+            genre_to_delete = Genre.query.get(genre_id)
+            if genre_to_delete:
+                # Delete associated entries in the movie_genre table
+                MovieGenre.query.filter_by(gen_id=genre_id).delete()
+                db.session.delete(genre_to_delete)
+                db.session.commit()
+                flash('Genre deleted successfully!', 'success')
+
+    all_genres = Genre.query.all()
+    return render_template('admin_manage_genres.html', title='Manage Genres', genres=all_genres, admin_key=ADMIN_KEY)

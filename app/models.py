@@ -3,8 +3,10 @@ from flask_login import UserMixin
 from app import db, login_manager
 from werkzeug.security import generate_password_hash, check_password_hash
 
+# Flask-Login user loader function
 @login_manager.user_loader
 def load_user(user_id):
+    # Load user from the database by user ID
     return User.query.get(int(user_id))
 
 class User(db.Model, UserMixin):
@@ -17,15 +19,19 @@ class User(db.Model, UserMixin):
     rents = db.relationship('Rent', backref='user', lazy=True)
 
     def get_id(self):
+        # Return the user ID as a string
         return str(self.usr_id)
 
     def set_password(self, password):
+        # Generate a hashed password
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
+        # Check if the provided password matches the hashed password
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
+        # Return a string representation of the user
         return f"User('{self.username}', '{self.phone}')"
 
 class Movie(db.Model):
@@ -39,10 +45,12 @@ class Movie(db.Model):
 
     @property
     def rating(self):
+        # Calculate the average rating for the movie
         reviews = [review.rating for review in self.reviews if review.rating is not None]
         return sum(reviews) / len(reviews) if reviews else 0
 
     def __repr__(self):
+        # Return a string representation of the movie
         return f"Movie('{self.title}', '{self.rel_year}', '{self.rating}')"
 
 class Subscription(db.Model):
@@ -52,6 +60,7 @@ class Subscription(db.Model):
     usr_id = db.Column(db.Integer, db.ForeignKey('user.usr_id'), nullable=False)
 
     def __repr__(self):
+        # Return a string representation of the subscription
         return f"Subscription('{self.plan}', '{self.start}', '{self.end}')"
 
 class Review(db.Model):
@@ -63,6 +72,7 @@ class Review(db.Model):
     mov_id = db.Column(db.Integer, db.ForeignKey('movie.mov_id'), nullable=False)
 
     def __repr__(self):
+        # Return a string representation of the review
         return f"Review('{self.rating}', '{self.date}', '{self.comment}')"
 
 class Genre(db.Model):
@@ -71,6 +81,7 @@ class Genre(db.Model):
     movies = db.relationship('MovieGenre', backref='genre', lazy=True)
 
     def __repr__(self):
+        # Return a string representation of the genre
         return f"Genre('{self.name}')"
 
 class Rent(db.Model):
@@ -80,6 +91,7 @@ class Rent(db.Model):
     end = db.Column(db.Date, nullable=False)
 
     def __repr__(self):
+        # Return a string representation of the rent
         return f"Rent('User: {self.usr_id}', 'Movie: {self.mov_id}', '{self.start} to {self.end}')"
 
 class MovieGenre(db.Model):
@@ -87,4 +99,5 @@ class MovieGenre(db.Model):
     gen_id = db.Column(db.Integer, db.ForeignKey('genre.gen_id'), primary_key=True)
 
     def __repr__(self):
+        # Return a string representation of the movie-genre association
         return f"MovieGenre('Movie: {self.mov_id}', 'Genre: {self.gen_id}')"
