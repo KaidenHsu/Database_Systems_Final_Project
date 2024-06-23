@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Add New Movie{% endblock %}
+{% block content %}
+    <h1>Add New Movie</h1>
+    <form method="POST" action="{{ url_for('admin_new_movie', admin_key='your_admin_key_here') }}">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.title.label }}<br>
+            {{ form.title(size=32) }}
+        </p>
+        <p>
+            {{ form.description.label }}<br>
+            {{ form.description(cols=40, rows=4) }}
+        </p>
+        <p>
+            {{ form.rel_year.label }}<br>
+            {{ form.rel_year(size=32) }}
+        </p>
+        <div id="existing-genres">
+            <h3>Genres:</h3>
+            {% for genre in all_genres %}
+                <button type="button" class="genre-btn" data-id="{{ genre.gen_id }}">{{ genre.name }}</button>
+            {% endfor %}
+        </div>
+        <input type="hidden" name="selected_genres" id="selected-genres">
+        <p><input type="submit" value="Add Movie"></p>
+    </form>
+    <script>
+        let selectedGenres = new Set();
+
+        document.querySelectorAll('.genre-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const genreId = this.getAttribute('data-id');
+                if (selectedGenres.has(genreId)) {
+                    selectedGenres.delete(genreId);
+                    this.style.backgroundColor = '';
+                } else {
+                    selectedGenres.add(genreId);
+                    this.style.backgroundColor = 'lightblue';
+                }
+                document.getElementById('selected-genres').value = Array.from(selectedGenres).join(',');
+            });
+        });
+    </script>
+{% endblock %}

@@ -15,35 +15,44 @@ Please note that code in this repo is intended solely for demo purposes and is s
 
 The system provides the following key functionalities:
 
-1. **User Management**
-   - **Registration**: New users can register by providing necessary details such as password and phone.
-   - **Authentication**: Users can log in using their `usr_id` and password.
-   - **Profile Management**: Users can update their profile details.
+**User Management**
+- **Registration**: New users can register by providing necessary details such as username, password, and phone number. The system ensures that the username is unique and provides feedback if the username is already taken or if the password confirmation does not match.
+- **Authentication**: Users can log in using their username and password. Passwords are securely hashed for storage and verification.
+- **Profile Management**: Users can update their profile details, including their phone number, by providing their current password for verification.
+- **Password Management**: Users can update their passwords by providing their current password and confirming the new password.
 
-2. **Movie Management**
-   - **Add New Movies**: Admins can add new movies with details like title, description, `rel_year`, and rating.
-   - **Update Movie Details**: Admins can update movie information.
-   - **Delete Movies**: Admins can remove movies from the database.
+**Movie Management**
+- **Add New Movies**: Admins can add new movies with details like title, description, release year, and genres.
+- **Update Movie Details**: Admins can update movie information, including changing the assigned genres.
+- **Delete Movies**: Admins can remove movies from the database, and associated reviews and rentals are also deleted.
 
-3. **Subscription Management**
-   - **Subscribe**: Users can subscribe to different plans with specific start and end dates.
-   - **View Subscriptions**: Users can view their current and past subscriptions.
-   - **Cancel Subscription**: Users can cancel their ongoing subscriptions.
+**Subscription Management**
+- **Subscribe**: Users can subscribe to different plans, choosing between 1-month and 1-year options.
+- **View Subscriptions**: Users can view their current subscriptions to keep track of their active subscriptions.
+- **Cancel Subscription**: Users can cancel their ongoing subscriptions if needed.
 
-4. **Rental Management**
-   - **Rent Movies**: Users can rent movies by specifying the start and end dates.
-   - **View Rentals**: Users can view their current and past rentals.
+**Rental Management**
+- **Rent Movies**: Users can rent movies by specifying the end date.
+- **View Rentals**: Users can view their current rentals, including the start and end dates, and the movies they have rented.
 
-5. **Review Management**
-   - **Add Reviews**: Users can review movies by providing rating, comment, and date.
-   - **Edit Reviews**: Users can update their reviews.
-   - **Delete Reviews**: Users can remove their reviews.
+**Review Management**
+- **Add Reviews**: Users can review movies by providing a rating and comment. The system prevents users from adding multiple reviews for the same movie.
+- **Edit Reviews**: Users can update their existing reviews through a dedicated update review page.
+- **Delete Reviews**: Users can remove their reviews from the system.
 
-6. **Genre Management**
-   - **Add Genres**: Admins can add new genres to the database.
-   - **Assign Genres to Movies**: Admins can categorize movies by assigning genres.
-   - **View Genres**: Users can view the list of available genres.
+**Genre Management**
+- **Add Genres**: Admins can add new genres to the database.
+- **Assign Genres to Movies**: Admins can categorize movies by assigning multiple genres to each movie.
+- **Delete Genres**: Admins can delete genres from the system, and the changes reflect in the movie genre associations.
 
-7. **Search and Browse**
-   - **Search Movies**: Users can search for movies based on title, description, `rel_year`, rating, and genre.
-   - **Browse by Genre**: Users can browse movies categorized under different genres.
+**Search and Browse**
+- **Search Movies**: Users can search for movies based on title, description, release year, rating, and genre. The search bar is prominently available on the home page.
+- **Filter by Genre**: Users can browse movies categorized under different genres by clicking on genre buttons. Multiple genres can be selected for filtering.
+
+**Admin Panel**
+- **Manage Movies**: Admins have a dedicated interface to manage movies, including adding, updating, and deleting movies.
+- **Manage Users**: Admins can view the list of users and their subscription status.
+- **Manage Genres**: Admins have a dedicated interface to manage genres, including adding and deleting genres.
+
+## Docs
+For more a comprehensive guide, please read the [docs](./docs)

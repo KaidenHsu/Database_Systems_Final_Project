@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Account{% endblock %}
+{% block content %}
+    <h2>Personal Info</h2>
+    <p>Username: {{ current_user.username }}</p>
+    <p>
+        Phone: {{ current_user.phone }}
+        <form action="{{ url_for('update_phone') }}" method="GET" style="display:inline;">
+            <input type="submit" value="Update Phone" class="btn btn-primary btn-sm" style="display:inline;">
+        </form>
+    </p>
+    <form action="{{ url_for('update_password') }}" method="GET" style="display:inline;">
+        <input type="submit" value="Update Password" class="btn btn-primary btn-sm">
+    </form>
+    <br><br>
+    <h2>Subscription</h2>
+    {% if current_subscription and current_subscription.end > datetime.now(timezone.utc).date() %}
+        <p>
+            Due Date: {{ current_subscription.end }}
+            <form action="{{ url_for('update_subscription') }}" method="GET" style="display:inline;">
+                <input type="submit" value="Update Subscription" class="btn btn-primary btn-sm" style="display:inline;">
+            </form>
+        </p>
+    {% else %}
+        <p>You have no active subscriptions.</p>
+        <form action="{{ url_for('update_subscription') }}" method="GET" style="display:inline;">
+            <input type="submit" value="Update Subscription" class="btn btn-primary btn-sm">
+        </form>
+    {% endif %}
+    <br><br>
+    <form action="{{ url_for('logout') }}" method="POST" onsubmit="return confirmLogout();">
+        <input type="submit" value="Logout" class="btn btn-warning">
+    </form>
+    <br>
+    <form action="{{ url_for('delete_account') }}" method="POST" onsubmit="return confirmDeleteAccount();">
+        <input type="submit" value="Delete Account" class="btn btn-danger">
+    </form>
+{% endblock %}

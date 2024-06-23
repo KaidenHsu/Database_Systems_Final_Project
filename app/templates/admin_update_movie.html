@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Update Movie{% endblock %}
+{% block content %}
+    <h1>Update Movie</h1>
+    <form method="POST" action="{{ url_for('admin_update_movie', movie_id=movie.mov_id, admin_key='your_admin_key_here') }}">
+        {{ form.hidden_tag() }}
+        <div>
+            {{ form.title.label }}<br>
+            {{ form.title(size=32) }}
+        </div>
+        <div>
+            {{ form.description.label }}<br>
+            {{ form.description(rows=4, cols=40) }}
+        </div>
+        <div>
+            {{ form.rel_year.label }}<br>
+            {{ form.rel_year(size=4) }}
+        </div>
+        <div>
+            <h2>Genres</h2>
+            <div id="existing-genres">
+                <h3>Genres:</h3>
+                {% for genre in all_genres %}
+                    <button type="button" class="genre-btn" data-id="{{ genre.gen_id }}" style="background-color: {% if genre.gen_id in movie_genre_ids %}lightblue{% endif %};">{{ genre.name }}</button>
+                {% endfor %}
+            </div>
+        </div>
+        <br>
+        <input type="hidden" name="selected_genres" id="selected-genres">
+        <div>
+            <button type="submit">Update Movie</button>
+        </div>
+    </form>
+    <script>
+        let selectedGenres = new Set();
+
+        document.querySelectorAll('.genre-btn').forEach(button => {
+            const genreId = button.getAttribute('data-id');
+            if (button.style.backgroundColor === 'lightblue') {
+                selectedGenres.add(genreId);
+            }
+            button.addEventListener('click', function() {
+                if (selectedGenres.has(genreId)) {
+                    selectedGenres.delete(genreId);
+                    button.style.backgroundColor = '';
+                } else {
+                    selectedGenres.add(genreId);
+                    button.style.backgroundColor = 'lightblue';
+                }
+                document.getElementById('selected-genres').value = Array.from(selectedGenres).join(',');
+            });
+        });
+
+        document.getElementById('selected-genres').value = Array.from(selectedGenres).join(',');
+    </script>
+{% endblock %}

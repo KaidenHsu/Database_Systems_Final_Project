@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ movie.title }}{% endblock %}
+{% block content %}
+    <h1>{{ movie.title }}</h1>
+    <p>{{ movie.description }}</p>
+    <p>Release Year: {{ movie.rel_year }}</p>
+    <p>Rating: {{ '%.1f' % movie.rating }}</p>
+    <p>Genres: 
+        {% for genre in movie.genres %}
+            {{ genre.genre.name }}{% if not loop.last %}, {% endif %}
+        {% endfor %}
+    </p>
+    <h2>Reviews</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Rating</th>
+                <th>Comment</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for review in movie.reviews %}
+                <tr>
+                    <td>{{ review.user.username }}</td>
+                    <td>{{ review.rating }}</td>
+                    <td>{{ review.comment }}</td>
+                    <td>{{ review.date }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    {% if not (current_user.is_authenticated and current_user.subscriptions and current_user.subscriptions[-1].end > datetime.now(timezone.utc).date()) %}
+        <div class="alert alert-warning" role="alert">
+            You must <a href="{{ url_for('update_subscription') }}">subscribe</a> to rent this movie.
+        </div>
+    {% endif %}
+    {% if current_user.is_authenticated and current_user.subscriptions and current_user.subscriptions[-1].end > datetime.now(timezone.utc).date() %}
+        <h3>Rent this Movie</h3>
+        <form method="POST" action="{{ url_for('movie_details', movie_id=movie.mov_id) }}">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.end_date.label }} {{ form.end_date(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    {% endif %}
+{% endblock %}

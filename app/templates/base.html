@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Enjoy Unlimited Movies. Watch anywhere. Cancel anytime.{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #d3d3d3; /* Lighter grey */
+        }
+        .title-bar {
+            background-color: blue;
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .title-bar.admin {
+            background-color: red;
+        }
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0;
+            font-family: 'Comic Sans MS', 'Comic Sans', cursive; /* Example font, change as needed */
+            color: yellow;
+        }
+        .title a {
+            color: yellow; /* Set the link color to yellow as well */
+            text-decoration: none;
+        }
+        .nav-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+        }
+        .nav-links li {
+            margin-left: 1rem;
+        }
+        .nav-links li a {
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+        .container {
+            flex: 1;
+            margin: 2rem;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 5px;
+        }
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: 5px;
+        }
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .footer {
+            text-align: center;
+            padding: 1rem;
+        }
+        .footer.user {
+            background-color: blue;
+            color: white;
+        }
+        .footer.admin {
+            background-color: red;
+            color: white;
+        }
+    </style>
+    <script>
+        function confirmLogout() {
+            return confirm("Are you sure you want to log out?");
+        }
+
+        function confirmDeleteAccount() {
+            return confirm("Are you sure you want to delete your account? This action cannot be undone.");
+        }
+    </script>
+</head>
+<body>
+    <div class="title-bar {% if request.endpoint.startswith('admin') %}admin{% endif %}">
+        <div class="title">
+            {% if request.endpoint.startswith('admin') %}
+                <a href="{{ url_for('admin', admin_key='your_admin_key_here') }}">Movie Streaming Platform</a>
+            {% else %}
+                <a href="{{ url_for('home') }}">Movie Streaming Platform</a>
+            {% endif %}
+        </div>
+        <nav>
+            <ul class="nav-links">
+                {% if request.endpoint.startswith('admin') %}
+                    <li>admin</li>
+                {% elif current_user.is_authenticated %}
+                    <li><a href="{{ url_for('profile') }}">{{ current_user.username }}</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
+    <div class="footer {% if request.endpoint.startswith('admin') %}admin{% else %}user{% endif %}">
+        {% if request.endpoint.startswith('admin') %}
+            Admin Page
+        {% else %}
+            Welcome to the Movie Streaming Platform
+        {% endif %}
+    </div>
+</body>
+</html>

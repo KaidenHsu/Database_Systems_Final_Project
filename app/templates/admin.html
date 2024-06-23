@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel{% endblock %}
+{% block content %}
+    <h1>Admin Panel</h1>
+    <hr>
+    <h2>Movies</h2>
+    <div>
+        <input type="text" id="movie-search" class="form-control" placeholder="Search movies by title, description, release year, or genres" style="width: 30%; margin-bottom: 10px;">
+    </div>
+    <div>
+        {% for genre in all_genres %}
+            <button type="button" class="btn btn-secondary genre-filter-btn" data-genre-id="{{ genre.gen_id }}">{{ genre.name }}</button>
+        {% endfor %}
+    </div>
+    <br>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Release Year</th>
+                <th>Rating</th>
+                <th>Genres</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="movies-tbody">
+            {% for movie in movies %}
+                <tr>
+                    <td>{{ movie.title }}</td>
+                    <td>{{ movie.rel_year }}</td>
+                    <td>{{ '%.1f' % movie.rating }}</td>
+                    <td>
+                        {% for genre in movie.genres %}
+                            {{ genre.genre.name }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ url_for('admin_update_movie', movie_id=movie.mov_id, admin_key='your_admin_key_here') }}" style="display:inline;">
+                            <button type="submit" class="btn btn-warning btn-sm">Edit</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('admin_delete_movie', movie_id=movie.mov_id, admin_key='your_admin_key_here') }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this movie? This action cannot be undone.');">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <form method="POST" action="{{ url_for('admin_new_movie', admin_key='your_admin_key_here') }}" style="display:inline;">
+        <button type="submit" class="btn btn-primary btn-sm">Add New Movie</button>
+    </form>
+    <form method="GET" action="{{ url_for('admin_manage_genres') }}" style="display:inline;">
+        <input type="hidden" name="admin_key" value="your_admin_key_here">
+        <button type="submit" class="btn btn-secondary btn-sm">Manage Genres</button>
+    </form>
+    <hr>
+    <h2>Users</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Phone</th>
+                <th>Subscription Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.phone }}</td>
+                    <td>
+                        {% if user.subscriptions and user.subscriptions[-1].end > datetime.now(timezone.utc).date() %}
+                            Active until {{ user.subscriptions[-1].end.strftime('%Y-%m-%d') }}
+                        {% else %}
+                            No active subscription
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script>
+        document.querySelectorAll('.genre-filter-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                if (this.style.backgroundColor === 'lightblue') {
+                    this.style.backgroundColor = '';
+                    this.style.color = '';
+                } else {
+                    this.style.backgroundColor = 'lightblue';
+                    this.style.color = 'white';
+                }
+                filterMovies();
+            });
+        });
+
+        document.getElementById('movie-search').addEventListener('input', function() {
+            filterMovies();
+        });
+
+        function filterMovies() {
+            const selectedGenres = Array.from(document.querySelectorAll('.genre-filter-btn'))
+                                        .filter(button => button.style.backgroundColor === 'lightblue')
+                                        .map(button => button.getAttribute('data-genre-id'));
+            const searchQuery = document.getElementById('movie-search').value.toLowerCase();
+
+            document.querySelectorAll('#movies-tbody tr').forEach(row => {
+                const title = row.querySelector('td:nth-child(1)').innerText.toLowerCase();
+                const releaseYear = row.querySelector('td:nth-child(2)').innerText.toLowerCase();
+                const rating = row.querySelector('td:nth-child(3)').innerText.toLowerCase();
+                const genres = row.querySelector('td:nth-child(4)').innerText.toLowerCase();
+
+                const matchesSearch = title.includes(searchQuery) || releaseYear.includes(searchQuery) || rating.includes(searchQuery) || genres.includes(searchQuery);
+
+                const movieGenres = genres.split(', ').map(name => name.trim());
+                const hasSelectedGenre = selectedGenres.every(genreId => movieGenres.includes(document.querySelector(`.genre-filter-btn[data-genre-id="${genreId}"]`).innerText.toLowerCase()));
+
+                if ((selectedGenres.length === 0 || hasSelectedGenre) && matchesSearch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+{% endblock %}

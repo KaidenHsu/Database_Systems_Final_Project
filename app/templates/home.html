@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+    <h1>Enjoy Unlimited Movies. Watch anywhere. Cancel anytime.</h1>
+    {% if current_user.is_authenticated %}
+        <h2>Rented Movies</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Rating</th>
+                    <th>Genres</th>
+                    <th>Start Date</th>
+                    <th>Due Date</th>
+                    <th>Review</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rent in rented_movies %}
+                    <tr>
+                        <td><a href="{{ url_for('movie_details', movie_id=rent.movie.mov_id) }}">{{ rent.movie.title }}</a></td>
+                        <td>{{ '%.1f' % rent.movie.rating }}</td>
+                        <td>
+                            {% for genre in rent.movie.genres %}
+                                {{ genre.genre.name }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ rent.start }}</td>
+                        <td>{{ rent.end }}</td>
+                        <td>
+                            {% set reviewed = False %}
+                            {% for review in rent.movie.reviews %}
+                                {% if review.usr_id == current_user.usr_id %}
+                                    {% set reviewed = True %}
+                                {% endif %}
+                            {% endfor %}
+                            {% if reviewed %}
+                                <form method="GET" action="{{ url_for('update_review', review_id=review.rev_id) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm">Update Review</button>
+                                </form>
+                            {% else %}
+                                <form method="GET" action="{{ url_for('add_review', movie_id=rent.movie.mov_id) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm">Add Review</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+    <h2>Available Movies</h2>
+    <div>
+        <input type="text" id="movie-search" placeholder="Search by title, genres, description, or release year" class="form-control" style="width: 30%;">
+    </div>
+    <br>
+    <div>
+        {% for genre in all_genres %}
+            <button type="button" class="btn btn-secondary genre-filter-btn" data-genre-id="{{ genre.gen_id }}">{{ genre.name }}</button>
+        {% endfor %}
+    </div>
+    <br>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Release Year</th>
+                <th>Rating</th>
+                <th>Genres</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="available-movies-tbody">
+            {% for movie in available_movies %}
+                <tr>
+                    <td><a href="{{ url_for('movie_details', movie_id=movie.mov_id) }}">{{ movie.title }}</a></td>
+                    <td>{{ movie.description }}</td>
+                    <td>{{ movie.rel_year }}</td>
+                    <td>{{ '%.1f' % movie.rating }}</td>
+                    <td>
+                        {% for genre in movie.genres %}
+                            {{ genre.genre.name }}{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ url_for('movie_details', movie_id=movie.mov_id) }}">
+                            <input type="submit" value="Rent" class="btn btn-primary">
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script>
+        document.querySelectorAll('.genre-filter-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                if (this.style.backgroundColor === 'lightblue') {
+                    this.style.backgroundColor = '';
+                    this.style.color = '';
+                } else {
+                    this.style.backgroundColor = 'lightblue';
+                    this.style.color = 'white';
+                }
+                filterMovies();
+            });
+        });
+
+        document.getElementById('movie-search').addEventListener('input', filterMovies);
+
+        function filterMovies() {
+            const selectedGenres = Array.from(document.querySelectorAll('.genre-filter-btn'))
+                                        .filter(button => button.style.backgroundColor === 'lightblue')
+                                        .map(button => button.getAttribute('data-genre-id'));
+            const searchQuery = document.getElementById('movie-search').value.toLowerCase();
+
+            document.querySelectorAll('#available-movies-tbody tr').forEach(row => {
+                const title = row.querySelector('td:nth-child(1) a').innerText.toLowerCase();
+                const description = row.querySelector('td:nth-child(2)').innerText.toLowerCase();
+                const releaseYear = row.querySelector('td:nth-child(3)').innerText.toLowerCase();
+                const genres = row.querySelector('td:nth-child(5)').innerText.toLowerCase();
+
+                const matchesSearch = title.includes(searchQuery) || description.includes(searchQuery) || releaseYear.includes(searchQuery) || genres.includes(searchQuery);
+                const movieGenres = genres.split(', ').map(name => name.trim());
+
+                const hasSelectedGenre = selectedGenres.every(genreId => movieGenres.includes(document.querySelector(`.genre-filter-btn[data-genre-id="${genreId}"]`).innerText.toLowerCase()));
+                
+                if ((selectedGenres.length === 0 || hasSelectedGenre) && matchesSearch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+{% endblock %}

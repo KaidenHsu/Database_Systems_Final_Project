@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}My Rentals{% endblock %}
+{% block content %}
+    <h1>My Rentals</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Movie</th>
+                <th>Rating</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rent in rentals %}
+                <tr>
+                    <td>{{ rent.movie.title }}</td>
+                    <td>{{ '%.1f' % rent.movie.rating }}</td>
+                    <td>{{ rent.start.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ rent.end.strftime('%Y-%m-%d') }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

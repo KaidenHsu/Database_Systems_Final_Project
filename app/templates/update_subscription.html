@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Update Subscription{% endblock %}
+{% block content %}
+    <h2>Update Subscription</h2>
+    {% if current_subscription and current_subscription.end > datetime.now(timezone.utc).date() %}
+        <p>Current Subscription Due Date: {{ current_subscription.end }}</p>
+    {% else %}
+        <p>You have no active subscriptions.</p>
+    {% endif %}
+    <form method="POST" action="{{ url_for('update_subscription') }}">
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            <button type="submit" name="duration" value="1_month" class="btn btn-primary btn-lg" onclick="return confirm('Are you sure you want to subscribe for 1 month?');">1 Month</button>
+            <button type="submit" name="duration" value="1_year" class="btn btn-primary btn-lg" onclick="return confirm('Are you sure you want to subscribe for 1 year?');">1 Year</button>
+            <button type="submit" name="duration" value="cancel" class="btn btn-danger btn-lg" onclick="return confirm('Are you sure you want to cancel your subscription?');">Cancel Subscription</button>
+        </div>
+    </form>
+{% endblock %}
