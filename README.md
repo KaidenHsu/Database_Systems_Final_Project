@@ -13,7 +13,7 @@ Please note that code in this repo is intended solely for demo purposes and is s
 
 ## Running the Project from Scratch
 
-Prerequisites:
+**Prerequisites:**
 - Python 3.x
 - pip
 
@@ -41,7 +41,7 @@ Start the Flask application.
 ```sh
 flask run
 ```
-Now, you should be able to access the application at http://127.0.0.1:5000.
+Now, you should be able to access the application at http://127.0.0.1:5000 and the admin panel at http://127.0.0.1:5000?admin_key=your_admin_key_here (replace your_admin_key_here with your custom admin key).
 For more information, please read the [docs](./docs)
 
 
