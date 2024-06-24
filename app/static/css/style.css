@@ -1,7 +1,10 @@
 body {
-    background-color: #d3d3d3; /* Lighter grey */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
     margin: 0;
     font-family: Arial, sans-serif;
+    background-color: #d3d3d3; /* Lighter grey */
 }
 
 .title-bar {
@@ -48,6 +51,7 @@ body {
 }
 
 .container {
+    flex: 1;
     margin: 2rem;
     padding: 2rem;
     background-color: white;
@@ -71,6 +75,21 @@ body {
     color: #721c24;
     background-color: #f8d7da;
     border-color: #f5c6cb;
+}
+
+.footer {
+    text-align: center;
+    padding: 1rem;
+}
+
+.footer.user {
+    background-color: blue;
+    color: white;
+}
+
+.footer.admin {
+    background-color: red;
+    color: white;
 }
 
 /* Existing styles */

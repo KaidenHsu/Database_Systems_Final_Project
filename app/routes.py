@@ -5,7 +5,7 @@ from app.forms import RegistrationForm, LoginForm, MovieForm, UpdatePhoneForm, \
 from app.models import User, Movie, Subscription, Rent, Review, Genre, MovieGenre
 from flask_login import login_user, current_user, logout_user, login_required
 from datetime import datetime, timedelta
-from sqlalchemy import func
+from sqlalchemy import func, desc
 from datetime import datetime, timezone
 
 # Home route
@@ -182,12 +182,6 @@ def rent_movie(movie_id):
             return redirect(url_for('movie_details', movie_id=movie.mov_id))
     return render_template('movie_details.html', title='Rent Movie', form=form, movie=movie, datetime=datetime, timezone=timezone)
 
-@app.route("/my_rentals")
-@login_required
-def my_rentals():
-    rentals = Rent.query.filter_by(usr_id=current_user.usr_id).all()
-    return render_template('my_rentals.html', title='My Rentals', rentals=rentals)
-
 @app.route("/movie/<int:movie_id>", methods=['GET', 'POST'])
 @login_required
 def movie_details(movie_id):
@@ -272,7 +266,7 @@ def admin_new_movie():
         
         db.session.commit()
         flash('The movie has been added!', 'success')
-        return redirect(url_for('admin', admin_key='your_admin_key_here'))
+        return redirect(url_for('admin', admin_key=ADMIN_KEY))
 
     all_genres = Genre.query.all()
     return render_template('admin_new_movie.html', title='Add New Movie', form=form, all_genres=all_genres)
@@ -310,7 +304,7 @@ def admin_update_movie(movie_id):
 
         db.session.commit()
         flash('The movie has been updated!', 'success')
-        return redirect(url_for('admin', admin_key='your_admin_key_here'))
+        return redirect(url_for('admin', admin_key=ADMIN_KEY))
 
     all_genres = Genre.query.all()
     movie_genre_ids = [genre.gen_id for genre in movie.genres]
