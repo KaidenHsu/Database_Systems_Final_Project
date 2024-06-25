@@ -20,10 +20,11 @@ Please note that code in this repo is intended solely for demo purposes and is s
 To get the project up and running, follow these steps:
 
 1. **Clone the Repository:**
-   ```sh
-   git clone <repository_url>
-   cd <repository_name>
-   ```
+Clone the repository from this GitHub page.
+```sh
+git clone <repository_url>
+cd <repository_name>
+```
 2. **Install Dependencies:**
 Install the required packages from requirements.txt.
 ```sh
